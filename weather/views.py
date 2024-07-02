@@ -14,6 +14,7 @@ class GreetingView(View):
         location = self.get_location(client_ip)
 
         if location == 'Unknown':
+            logger.error(f"Failed to resolve location for IP: {client_ip}")
             return JsonResponse({
                 'clientIp': client_ip,
                 'location': 'Unknown',
@@ -22,6 +23,7 @@ class GreetingView(View):
 
         weather_api_key = os.getenv('OPENWEATHER_API_KEY')
         if not weather_api_key:
+            logger.error("API Key not set!")
             return JsonResponse({
                 'clientIp': client_ip,
                 'location': 'Unknown',
@@ -30,6 +32,7 @@ class GreetingView(View):
 
         temperature = self.get_temperature(location, weather_api_key)
         if temperature == 'N/A':
+            logger.error(f"Failed to get temperature for location: {location}")
             return JsonResponse({
                 'clientIp': client_ip,
                 'location': location,
@@ -48,21 +51,30 @@ class GreetingView(View):
             client_ip = client_ip.split(',')[0]
         else:
             client_ip = request.META.get('REMOTE_ADDR')
+        logger.info(f"Resolved client IP: {client_ip}")
         return client_ip
 
     def get_location(self, client_ip):
         if client_ip in ('127.0.0.1', 'localhost'):
+            logger.info("Localhost detected, defaulting location to 'Nigeria'")
             return 'Nigeria'
-        url = f'https://freegeoip.app/json/{client_ip}'
+
+        ipinfo_token = os.getenv('IPINFO_API_KEY')
+        url = f'https://ipinfo.io/{client_ip}/json'
+        headers = {}
+        if ipinfo_token:
+            headers['Authorization'] = f'Bearer {ipinfo_token}'
+
         try:
-            response = requests.get(url)
+            response = requests.get(url, headers=headers)
             response.raise_for_status()
             try:
                 response_data = response.json()
+                logger.info(f"GeoIP response data: {response_data}")
                 city = response_data.get('city')
                 if city:
                     return city
-                return response_data.get('country_name', 'Unknown')
+                return response_data.get('country', 'Unknown')
             except ValueError as e:
                 logger.error(f"Error decoding JSON from {url}: {e}")
                 logger.error(f"Response content: {response.content}")
@@ -78,6 +90,7 @@ class GreetingView(View):
             response.raise_for_status()
             try:
                 response_data = response.json()
+                logger.info(f"Weather API response data: {response_data}")
                 return f"{response_data['main']['temp']} degrees Celsius"
             except ValueError as e:
                 logger.error(f"Error decoding JSON from {url}: {e}")
