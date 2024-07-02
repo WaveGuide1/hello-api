@@ -6,7 +6,7 @@ from django.views import View
 
 class GreetingView(View):
     def get(self, request):
-        visitor_name = request.GET.get('visitor_name')
+        your_name = request.GET.get('your_name')
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR', '') or request.META.get('REMOTE_ADDR')
 
         if client_ip in ('127.0.0.1', 'localhost'):
@@ -40,7 +40,7 @@ class GreetingView(View):
         return JsonResponse({
             'clientIp': client_ip,
             'location': location,
-            'greeting': f'Hello, {visitor_name}!, the temperature is {temperature} in {location}'
+            'greeting': f'Hello, {your_name}!, the temperature is {temperature} in {location}'
         })
 
     def get_location(self, client_ip):
