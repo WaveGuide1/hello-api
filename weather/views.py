@@ -1,7 +1,10 @@
 import os
 import requests
+import logging
 from django.http import JsonResponse
 from django.views import View
+
+logger = logging.getLogger(__name__)
 
 
 class GreetingView(View):
@@ -47,18 +50,30 @@ class GreetingView(View):
         url = f'https://freegeoip.app/json/{client_ip}'
         try:
             response = requests.get(url)
-            response_data = response.json()
-            return response_data.get('city', 'Unknown')
-        except requests.RequestException:
+            response.raise_for_status()
+            try:
+                response_data = response.json()
+                return response_data.get('city', 'Unknown')
+            except ValueError as e:
+                logger.error(f"Error decoding JSON from {url}: {e}")
+                logger.error(f"Response content: {response.content}")
+                return 'Unknown'
+        except requests.RequestException as e:
+            logger.error(f"Error fetching location from {url}: {e}")
             return 'Unknown'
 
     def get_temperature(self, location, api_key):
         url = f'https://api.openweathermap.org/data/2.5/weather?q={location}&units=metric&appid={api_key}'
         try:
             response = requests.get(url)
-            response_data = response.json()
-            if response.status_code == 200:
+            response.raise_for_status()
+            try:
+                response_data = response.json()
                 return f"{response_data['main']['temp']} degrees Celsius"
-            return 'N/A'
-        except requests.RequestException:
+            except ValueError as e:
+                logger.error(f"Error decoding JSON from {url}: {e}")
+                logger.error(f"Response content: {response.content}")
+                return 'N/A'
+        except requests.RequestException as e:
+            logger.error(f"Error fetching temperature from {url}: {e}")
             return 'N/A'
