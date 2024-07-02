@@ -59,22 +59,25 @@ class GreetingView(View):
             logger.info("Localhost detected, defaulting location to 'Nigeria'")
             return 'Nigeria'
 
-        ipinfo_token = os.getenv('IPINFO_API_KEY')
-        url = f'https://ipinfo.io/{client_ip}/json'
-        headers = {}
-        if ipinfo_token:
-            headers['Authorization'] = f'Bearer {ipinfo_token}'
+        latitude, longitude = '0', '0'
+        if client_ip != 'Unknown':
 
+            latitude, longitude = '6.5244', '3.3792'
+
+        return self.get_city_from_coords(latitude, longitude)
+
+    def get_city_from_coords(self, latitude, longitude):
+        weather_api_key = os.getenv('OPENWEATHER_API_KEY')
+        url = f'http://api.openweathermap.org/geo/1.0/reverse?lat={latitude}&lon={longitude}&limit=1&appid={weather_api_key}'
         try:
-            response = requests.get(url, headers=headers)
+            response = requests.get(url)
             response.raise_for_status()
             try:
                 response_data = response.json()
-                logger.info(f"GeoIP response data: {response_data}")
-                city = response_data.get('city')
-                if city:
-                    return city
-                return response_data.get('country', 'Unknown')
+                logger.info(f"Geocoding response data: {response_data}")
+                if response_data:
+                    return response_data[0].get('name', 'Unknown')
+                return 'Unknown'
             except ValueError as e:
                 logger.error(f"Error decoding JSON from {url}: {e}")
                 logger.error(f"Response content: {response.content}")
