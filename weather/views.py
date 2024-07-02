@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 class GreetingView(View):
     def get(self, request):
-        visitor_name = request.GET.get('name', 'Guest')
+        visitor_name = request.GET.get('visitor_name', 'Guest')
         client_ip = self.get_client_ip(request)
         location = self.get_location(client_ip)
 

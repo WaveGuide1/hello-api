@@ -16,8 +16,8 @@ This is a Django-based web application that provides a personalized greeting alo
 - Clever Cloud account for deployment
 
 ## Live server
-## URL https://ancestor.cleverapps.io/
-## [GET] https://ancestor.cleverapps.io/api/greeting?name=YOUR_NAME
+## URL https://cleverapps.io/
+## [GET] https://ancestor.cleverapps.io/api/hello?visitor_name=YOUR_NAME
 
 ## Installation and Running Locally
 
@@ -47,7 +47,7 @@ python manage.py runserver
 ```
 ## Run the App locally
 ```
-[GET] http://localhost:8080/api/greeting?name=YOUR_NAME
+[GET] http://localhost:8080/api/hello?visitor_name=YOUR_NAME
 ```
 
    
