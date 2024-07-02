@@ -16,7 +16,7 @@ class GreetingView(View):
         if location == 'Unknown':
             logger.error(f"Failed to resolve location for IP: {client_ip}")
             return JsonResponse({
-                'clientIp': client_ip,
+                'client_ip': client_ip,
                 'location': 'Unknown',
                 'greeting': 'Failed to resolve location'
             })
@@ -25,7 +25,7 @@ class GreetingView(View):
         if not weather_api_key:
             logger.error("API Key not set!")
             return JsonResponse({
-                'clientIp': client_ip,
+                'client_ip': client_ip,
                 'location': 'Unknown',
                 'greeting': 'API Key not set!'
             })
@@ -34,13 +34,13 @@ class GreetingView(View):
         if temperature == 'N/A':
             logger.error(f"Failed to get temperature for location: {location}")
             return JsonResponse({
-                'clientIp': client_ip,
+                'client_ip': client_ip,
                 'location': location,
                 'greeting': 'Failed to get temperature'
             })
 
         return JsonResponse({
-            'clientIp': client_ip,
+            'client_ip': client_ip,
             'location': location,
             'greeting': f'Hello, {visitor_name}! The temperature is {temperature} in {location}'
         })
