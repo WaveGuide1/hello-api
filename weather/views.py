@@ -59,14 +59,10 @@ class GreetingView(View):
             logger.info("Localhost detected, defaulting location to 'Nigeria'")
             return 'Nigeria'
 
-        ipinfo_token = os.getenv('IPINFO_API_KEY')
-        url = f'https://ipinfo.io/{client_ip}/json'
-        headers = {}
-        if ipinfo_token:
-            headers['Authorization'] = f'Bearer {ipinfo_token}'
+        url = f'http://ip-api.com/json/{client_ip}'
 
         try:
-            response = requests.get(url, headers=headers)
+            response = requests.get(url)
             response.raise_for_status()
             try:
                 response_data = response.json()
