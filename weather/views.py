@@ -10,7 +10,7 @@ class GreetingView(View):
         client_ip = request.META.get('HTTP_X_FORWARDED_FOR', '') or request.META.get('REMOTE_ADDR')
 
         if client_ip in ('127.0.0.1', 'localhost'):
-            location = 'London'
+            location = 'Nigeria'
         else:
             location = self.get_location(client_ip)
 
